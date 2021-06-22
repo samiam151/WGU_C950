@@ -1,40 +1,44 @@
 import csv
 from typing import List
 
-from wgups.models import Post, Package
-from wgups.structures import Graph, Node, HashSet
+import wgups.models as models
+import wgups.structures as structures
+from wgups.models import Post
+from wgups.structures import Node
 
 
-def load_packages() -> HashSet:
-    package_hash_set: HashSet = HashSet()
+def load_packages() -> structures.HashSet[models.Package]:
+    package_hash_set: structures.HashSet = structures.HashSet()
     _path = "./wgups/data/data/packages.csv"
 
     try:
         with open(_path) as packageFile:
             for row in csv.reader(packageFile):
-                package_hash_set.insert(Package(*row))
+                package_hash_set.insert(models.Package(*row))
     except FileNotFoundError:
         print("File not found")
 
     return package_hash_set
 
 
-def generate_nodes(rows: List[List[str]]) -> List[Node]:
+def generate_nodes(rows: List[List[str]], posts: List[models.Post]):
     nodes = []
     current_node = None
     try:
         for i, row in enumerate(rows):
             current_node = row
-            label = rows[i][0].split("\n")[0]
-            node = Node(label)
+            name = rows[i][0].split("\n")[0]
+            post = posts[i]
+            node = structures.Node(name, post)
             nodes.append(node)
+            post.node = node
     except KeyError:
         print(current_node)
     return nodes
 
 
-def generate_posts(rows: List[List[str]]) -> List[Post]:
-    posts: List[Post] = []
+def generate_posts(rows: List[List[str]]) -> List[models.Post]:
+    posts: List[models.Post] = []
     current_post = None
     try:
         for i, row, in enumerate(rows):
@@ -43,28 +47,36 @@ def generate_posts(rows: List[List[str]]) -> List[Post]:
             pieces = rows[i][1].split("\n")
             address_str = pieces[0].strip()
             zip_code = None if address_str == 'HUB' else pieces[1].strip(' ()')
-            post = Post(label, address_str, zip_code)
+            post = models.Post(label, address_str, zip_code)
             posts.append(post)
     except KeyError:
         print(current_post)
     return posts
 
 
-def load_distances() -> Graph:
-    distance_graph = Graph()
+def load_distances() -> (structures.Graph, List[Node], List[Post]):
+    distance_graph = structures.Graph()
     _path = "./wgups/data/data/distances.csv"
 
     try:
         with open(_path) as packageFile:
             rows = []
+            columns = []
 
+            index = 0
             for row in csv.reader(packageFile):
                 rows.append(row)
 
-            distances = [row[2:] for row in rows[1:]]
-            # nodes: List[Node] = generate_nodes(rows[1:])
-            posts: List[Post] = generate_posts(rows[1:])
-            return process_distances(posts, distance_graph, distances)
+            for i in range(len(rows) + 1):
+                column = []
+                for row in rows:
+                    column.append(row[i])
+                columns.append(column)
+
+            distances = [column[1:] for column in columns[2:]]
+            posts: List[models.Post] = generate_posts(rows[1:])
+            nodes: List[structures.Node] = generate_nodes(rows[1:], posts)
+            return process_distances(nodes, distance_graph, distances), nodes, posts
 
     except FileNotFoundError:
         print("File not found")
@@ -72,11 +84,11 @@ def load_distances() -> Graph:
     return distance_graph
 
 
-def process_distances(nodes: List[Node], distance_graph: Graph, distances: List[List[str]]) -> Graph:
+def process_distances(nodes: List[structures.Node], distance_graph: structures.Graph, distances: List[List[str]]) -> structures.Graph:
     for i, node in enumerate(nodes):
         distance_graph.add_node(node)
 
         for j, d_node in enumerate(nodes):
             distance = distances[i][j] if distances[i][j] != "0" else ""
-            distance_graph.add_directed_edge(node, d_node, distance)
+            distance_graph.add_undirected_edge(node, d_node, distance)
     return distance_graph

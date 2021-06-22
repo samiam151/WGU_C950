@@ -1,4 +1,9 @@
-class HashSet:
+from typing import List, TypeVar, Generic
+
+T = TypeVar('T')
+
+
+class HashSet(Generic[T]):
     # Constructor with optional initial capacity parameter.
     # Assigns all buckets with an empty list.
     def __init__(self, initial_capacity=10):
@@ -32,6 +37,13 @@ class HashSet:
             # the key is not found.
             return None
 
+    def all(self) -> List[T]:
+        items = []
+        for bucket in self.table:
+            for v in bucket:
+                items.append(v)
+        return sorted(items, key=lambda x: x.id)
+
     # Removes an item with matching key from the hash table.
     def remove(self, key):
         # get the bucket list where this item will be removed from.
@@ -46,7 +58,9 @@ class HashSet:
         value = f"[HashTable]:\n{'-' * 10}\n"
         i = 1
         for bucket in self.table:
-            value += f"Bucket {i} => {str(len(bucket))} items\n"
+            value += f"bucket {i} =>\n"
+            for v in bucket:
+                value += f"\t{v}\n"
             i += 1
         return value
 
