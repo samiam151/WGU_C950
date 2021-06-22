@@ -3,6 +3,7 @@ from typing import List
 import wgups.models as models
 from wgups.models.constraint import PackageConstraint, TruckConstraint
 from wgups.structures import Clock, Node, Graph
+import wgups.utils.distances as distance
 
 
 class Truck:
@@ -17,6 +18,7 @@ class Truck:
         self.miles_traveled = 0
         self.clock = Clock(self.start_time)
         self.current_node = None
+        print(f"Truck {self.id} Start: {self.clock.get_time()}")
 
     def get_package_ids(self):
         return [package.id for package in self.packages]
@@ -30,33 +32,59 @@ class Truck:
     """
     Determines if the given package can be delivered
     """
+
     def can_deliver(self, p: models.Package):
         # Accept any package with no constraints
         if not p.has_constraints():
             return True
         # Check constraints
         else:
+            temp_can_deliver = True
             for c in p.constraints:
                 if type(c) == TruckConstraint and self.id != int(c.required_truck):
-                    return False
+                    temp_can_deliver = False
+
+            return temp_can_deliver
+
+    def deliver_package(self, graph: Graph, package: models.Package, nodes):
+        destination_node = next((node for node in nodes if node.value.address == package.address), None)
+        _distance_traveled = distance.get_distance(graph, self.current_node, destination_node)
+        self.current_node = destination_node
+        self.packages.remove(package)
+        distance_traveled = _distance_traveled if _distance_traveled is not None else 0
+        self.clock.add_minutes((distance_traveled / self.speed) * 60)
+        print(f"Truck {self.id}: {self.clock.get_time()}")
+
+        return distance_traveled
 
     def deliver_packages(self, nodes: List[Node], distances: Graph, posts: List[models.Post]):
         self.current_node = nodes[0]
+        distance_traveled: float = 0
 
-        def match_address(y: models.Post):
-            return y.address == self.current_node.address
+        def match_distance(p: models.Package):
+            destination_node = next((node for node in nodes if node.value.address == p.address), None)
+            d = distance.get_distance(distances, self.current_node, destination_node)
+            return d
 
         """
         Find out which package has the shortest distance (closest)
         """
+        # constrained_sorted_packages = sorted([p for p in self.packages if p.has_constraints()],
+        #                                      key=lambda _p: match_distance(_p))
+        # unconstrained_sorted_packages = sorted([p for p in self.packages if not p.has_constraints()],
+        #                                        key=lambda _p: match_distance(_p))
+        #
+        # for package in constrained_sorted_packages:
+        #     distance_traveled += self.deliver_package(distances, package, nodes)
+        #
+        # for package in unconstrained_sorted_packages:
+        #     distance_traveled += self.deliver_package(distances, package, nodes)
+
         for package in self.packages:
-            addresses = [p.address for p in self.packages]
+            distance_traveled += self.deliver_package(distances, package, nodes)
 
-
-            # node = next((post.node for post in posts if match_address(post)), None)
-
-            # distances.get_edges()
-            # self.packages.remove(package)
+        print("Trip Miles: ", distance_traveled)
+        return distance_traveled
 
     def add_package(self, p: models.Package):
         self.packages.append(p)

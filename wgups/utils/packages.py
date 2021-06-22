@@ -19,7 +19,7 @@ def add_package_constraints(packages: structures.HashSet) -> structures.HashSet:
         # Add address constraints
         if constraint_cues.get("wrong_address") in ac_package.notes:
             # ac_package.constraints.append(constraint.AddressConstraint())
-            ac_package.address = "410 S State St."
+            ac_package.address = "410 S State St"
             ac_package.city = "Salt Lake City"
             ac_package.state = "84111"
             ac_package.zip = "UT"

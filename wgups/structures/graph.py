@@ -4,7 +4,6 @@ from typing import TypeVar, Generic
 from wgups.structures.edge import Edge
 
 
-
 class Graph:
     def __init__(self):
         self.adjacency_list = {}

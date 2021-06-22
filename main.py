@@ -13,10 +13,7 @@ if __name__ == '__main__':
     depot = Depot(distance_graph, packages)
 
     packages = add_package_constraints(packages)
-    # distribute_packages(packages, depot)
 
-    # print(packages)
-    # post_less_packages = [p for p in packages.all() if p.post is None]
     depot.deliver_packages(nodes, posts)
     # [print(t) for t in depot.trucks]
 
