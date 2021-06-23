@@ -1,5 +1,4 @@
 from wgups.structures import Graph, Node
-from wgups.models import Package
 
 
 def get_distance(distance_graph: Graph, from_node: Node, to_node: Node):
