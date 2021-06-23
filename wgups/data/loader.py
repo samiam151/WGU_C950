@@ -60,22 +60,21 @@ def load_distances() -> (structures.Graph, List[Node], List[Post]):
 
     try:
         with open(_path) as packageFile:
-            rows = []
-            columns = []
+            data_rows = []
+            data_columns = []
 
-            index = 0
             for row in csv.reader(packageFile):
-                rows.append(row)
+                data_rows.append(row)
 
-            for i in range(len(rows) + 1):
+            for i in range(len(data_rows) + 1):
                 column = []
-                for row in rows:
+                for row in data_rows:
                     column.append(row[i])
-                columns.append(column)
+                data_columns.append(column)
 
-            distances = [column[1:] for column in columns[2:]]
-            posts: List[models.Post] = generate_posts(rows[1:])
-            nodes: List[structures.Node] = generate_nodes(rows[1:], posts)
+            distances = [column[1:] for column in data_columns[2:]]
+            posts: List[models.Post] = generate_posts(data_rows[1:])
+            nodes: List[structures.Node] = generate_nodes(data_rows[1:], posts)
 
             for i in range(len(posts)):
                 posts[i].node = nodes[i]

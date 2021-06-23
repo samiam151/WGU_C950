@@ -7,6 +7,14 @@ class PackageStatus:
     def assigned():
         return "Assigned"
 
+    @staticmethod
+    def delivering():
+        return "Out for Delivery"
+
+    @staticmethod
+    def delivered():
+        return "Delivered"
+
 
 class ConstraintType:
     @staticmethod

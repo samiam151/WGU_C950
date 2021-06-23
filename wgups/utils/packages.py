@@ -28,7 +28,12 @@ def add_package_constraints(packages: structures.HashSet) -> structures.HashSet:
         # Add co-package constraints
         if constraint_cues.get("co_package") in ac_package.notes:
             p_ids = ac_package.notes.split(constraint_cues.get("co_package"))[1]
+            split_pids = p_ids.split(", ")
             ac_package.constraints.append(constraint.PackageConstraint(p_ids.split(", ")))
+
+            other_packages = [p for p in packages.all() if str(p.id) in split_pids]
+            for other_package in other_packages:
+                other_package.constraints.append(constraint.PackageConstraint())
 
         # Add deadline constraints
         if ac_package.deadline != 'EOD':

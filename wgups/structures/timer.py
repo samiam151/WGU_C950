@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 
-class Clock:
+class Timer:
     def __init__(self, start_time="08:00"):
         hours, minutes = start_time.split(":")
         today = datetime.today()

@@ -3,8 +3,9 @@ from typing import List
 
 import wgups.models as models
 from wgups.models.constraint import PackageConstraint, TruckConstraint
-from wgups.structures import Clock, Node, Graph
+from wgups.structures import Timer, Node, Graph
 import wgups.utils.distances as distance
+from wgups.utils import PackageStatus
 
 
 class Truck:
@@ -17,8 +18,8 @@ class Truck:
         self.package_limit = 16
         self.start_time: str = start_time
         self.miles_traveled = 0
-        self.clock = Clock(self.start_time)
-        self.current_node = None
+        self.clock = Timer(self.start_time)
+        self.location = None
         print(f"Truck {self.id} Start: {self.clock.get_time()}")
 
     def is_full(self):
@@ -46,38 +47,54 @@ class Truck:
 
             return temp_can_deliver
 
-    def deliver_package(self, graph: Graph, package: models.Package, nodes):
-        destination_node = next((node for node in nodes if node.value.address == package.address), None)
-        _distance_traveled = distance.get_distance(graph, self.current_node, destination_node)
-        self.current_node = destination_node
+    def deliver_package(self, graph: Graph, package: models.Package, package_distance: float):
+        destination_node = package.post.node
+        self.location = destination_node
+        package.status = PackageStatus.delivered()
         self.packages.remove(package)
-        distance_traveled = _distance_traveled if _distance_traveled is not None else 0
-        self.clock.add_minutes(self.distance_to_time(distance_traveled))
-        print(f"Truck {self.id}: {self.clock.get_time()}, Distance: {distance_traveled}, "
-              + f"Time: {self.distance_to_time(distance_traveled)}")
+        self.clock.add_minutes(self.distance_to_time(package_distance))
 
-        return distance_traveled
+        print(f"Truck {self.id}: {self.clock.get_time().time()}, Distance: {package_distance}, "
+              + f"Time: {self.distance_to_time(package_distance)}")
+        print(f"\t{package}")
+
+        return package_distance
+
+    def find_shortest_node(self):
+        pass
 
     def deliver_packages(self, nodes: List[Node], distances: Graph, posts: List[models.Post]):
-        self.current_node = nodes[0]
+        self.location = nodes[0]
         distance_traveled: float = 0
+        packages_delivered = 0
 
-        """
-        Find out which package has the shortest distance (closest)
-        """
-        while self.packages:
+        distance_memo = {}
+        while len(self.packages) > 0:
             lowest_distance_package_index = None
-            lowest_distance = sys.maxsize
+            lowest_distance: float = sys.maxsize
             for index, destination_package in enumerate(self.packages):
-                _distance = distance.get_distance(distances, self.current_node, destination_package.post.node)
-                _distance = _distance if _distance is not None else 0
-                if _distance < lowest_distance:
+                destination_node = destination_package.post.node
+                current_trip = (self.location, destination_node)
+                calculated_distance = None
+
+                if current_trip in distance_memo:
+                    calculated_distance = distance_memo[current_trip]
+                else:
+                    calculated_distance = distance.get_distance(distances, self.location, destination_node)
+                    distance_memo[current_trip] = calculated_distance
+
+                calculated_distance = calculated_distance if calculated_distance is not None else 0
+                if calculated_distance < lowest_distance:
                     lowest_distance_package_index = index
-                    lowest_distance = _distance
+                    lowest_distance = calculated_distance
 
-            distance_traveled += self.deliver_package(distances, self.packages[lowest_distance_package_index], nodes)
+            distance_traveled += self.deliver_package(distances, self.packages[lowest_distance_package_index],
+                                                      lowest_distance)
+            packages_delivered += 1
 
-        print(f"Trip Miles: {distance_traveled}")
+        print("=====================================================")
+        print(f"Trip Miles: {distance_traveled}, Packages Delivered: {packages_delivered}")
+        print("=====================================================")
         return distance_traveled
 
     def add_package(self, p: models.Package):

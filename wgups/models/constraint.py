@@ -13,12 +13,6 @@ class Constraint:
         return s
 
 
-class AddressConstraint(Constraint):
-    def __init__(self):
-        Constraint.__init__(self)
-        self.type = ConstraintType.address()
-
-
 class TruckConstraint(Constraint):
     def __init__(self, truck=None):
         Constraint.__init__(self)
