@@ -14,9 +14,4 @@ class Post:
         return self.__str__()
 
     def __str__(self) -> str:
-        s = f"[Post] {self.name} / {self.address}"
-        # s += ("-" * 10 + "\n")
-        # s += f"Name: {self.name}\n"
-        # s += f"Address: {self.address}\n"
-        # s += f"Zip Code: {self.zip_code}"
-        return s
+        return f"[Post] {self.name} / {self.address}"

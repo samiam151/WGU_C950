@@ -4,6 +4,7 @@ from typing import List, TypeVar
 import wgups.models as models
 from wgups.structures import HashSet, Graph, Node
 
+
 class Depot:
     def __init__(self, distance_map: Graph, packages: HashSet):
         self.trucks = [models.Truck(1), models.Truck(2, start_time="09:30")]

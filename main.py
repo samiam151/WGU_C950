@@ -7,7 +7,7 @@ if __name__ == '__main__':
     packages: HashSet[Package] = load_packages()
     distance_graph, nodes, posts = load_distances()
 
-    for package in packages.all():
+    for index, package in enumerate(packages.all()):
         package.post = next((post for post in posts if post.address == package.address), None)
 
     depot = Depot(distance_graph, packages)
@@ -15,5 +15,4 @@ if __name__ == '__main__':
     packages = add_package_constraints(packages)
 
     depot.deliver_packages(nodes, posts)
-    # [print(t) for t in depot.trucks]
 

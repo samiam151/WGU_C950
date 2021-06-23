@@ -76,6 +76,10 @@ def load_distances() -> (structures.Graph, List[Node], List[Post]):
             distances = [column[1:] for column in columns[2:]]
             posts: List[models.Post] = generate_posts(rows[1:])
             nodes: List[structures.Node] = generate_nodes(rows[1:], posts)
+
+            for i in range(len(posts)):
+                posts[i].node = nodes[i]
+
             return process_distances(nodes, distance_graph, distances), nodes, posts
 
     except FileNotFoundError:
