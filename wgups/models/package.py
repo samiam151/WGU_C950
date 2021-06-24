@@ -1,3 +1,5 @@
+from typing import Type
+
 from wgups.utils.constants import PackageStatus
 
 
@@ -18,6 +20,13 @@ class Package:
 
     def has_constraints(self):
         return len(self.constraints) > 0
+
+    def has_constraint(self, constraint_type: Type):
+        has_constraint_type = False
+        for c in self.constraints:
+            if type(c) == constraint_type:
+                has_constraint_type = True
+        return has_constraint_type
 
     def __repr__(self):
         return self.__str__()

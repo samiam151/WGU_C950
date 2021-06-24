@@ -42,7 +42,6 @@ class Depot:
             deliverable_regular_packages = [
                 p for p in unconstrained_packages if truck.can_deliver(p)]
 
-            # for package in package_constrained_packages:
             for i in range(len(package_constrained_packages)):
                 package = package_constrained_packages[0]
                 if not truck.is_full() and not truck.has_package(package):
@@ -59,6 +58,6 @@ class Depot:
                     truck.add_package(package)
                     unconstrained_packages.remove(package)
 
-            self.total_miles_traveled += truck.deliver_packages(nodes, self.distances, posts)
+            self.total_miles_traveled += truck.deliver_packages(nodes, self.distances)
 
         print("Total Miles Traveled:", "{:.2f}".format(self.total_miles_traveled))

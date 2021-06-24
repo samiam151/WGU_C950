@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime
 
 import wgups.models as models
 import wgups.models.constraint as constraint
@@ -23,7 +24,9 @@ def add_package_constraints(packages: structures.HashSet) -> structures.HashSet:
             ac_package.city = "Salt Lake City"
             ac_package.state = "84111"
             ac_package.zip = "UT"
-            ac_package.constraints.append(constraint.TimeConstraint(arrival_time="1020"))
+            today = datetime.today()
+            d = datetime(today.year, today.month, today.day, 10, 20)
+            ac_package.constraints.append(constraint.TimeConstraint(arrival_time=d))
 
         # Add co-package constraints
         if constraint_cues.get("co_package") in ac_package.notes:
@@ -42,7 +45,10 @@ def add_package_constraints(packages: structures.HashSet) -> structures.HashSet:
         # Add delay constraints
         if constraint_cues.get("delay") in ac_package.notes:
             arrival_time = ac_package.notes.split(constraint_cues.get("delay"))[1]
-            ac_package.constraints.append(constraint.TimeConstraint(arrival_time=arrival_time))
+            arrival_times = [int(n) for n in arrival_time.split(" ")[0].split(":")]
+            today = datetime.today()
+            d = datetime(today.year, today.month, today.day, int(arrival_times[0]), int(arrival_times[1]))
+            ac_package.constraints.append(constraint.TimeConstraint(arrival_time=d))
 
         # Add trick requirement constraints
         if constraint_cues.get("truck") in ac_package.notes:

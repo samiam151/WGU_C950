@@ -2,7 +2,7 @@ import sys
 from typing import List
 
 import wgups.models as models
-from wgups.models.constraint import PackageConstraint, TruckConstraint
+from wgups.models.constraint import TruckConstraint, TimeConstraint
 from wgups.structures import Timer, Node, Graph
 import wgups.utils.distances as distance
 from wgups.utils import PackageStatus
@@ -44,53 +44,68 @@ class Truck:
             for c in p.constraints:
                 if type(c) == TruckConstraint and self.id != int(c.required_truck):
                     temp_can_deliver = False
+                if type(c) == TimeConstraint:
+                    if c.arrival_time is not None:
+                        truck_start_time = self.clock.get_time().time()
+                        package_arrival_time = c.arrival_time.time()
+                        if package_arrival_time > truck_start_time:
+                            temp_can_deliver = False
 
             return temp_can_deliver
 
-    def deliver_package(self, graph: Graph, package: models.Package, package_distance: float):
+    def deliver_package(self, package: models.Package, package_distance: float):
         destination_node = package.post.node
         self.location = destination_node
         package.status = PackageStatus.delivered()
-        self.packages.remove(package)
+        for p in self.packages:
+            if p.id == package.id:
+                self.packages.remove(package)
         self.clock.add_minutes(self.distance_to_time(package_distance))
 
-        print(f"Truck {self.id}: {self.clock.get_time().time()}, Distance: {package_distance}, "
-              + f"Time: {self.distance_to_time(package_distance)}")
-        print(f"\t{package}")
+        print(f"Truck {self.id}: {self.clock.get_time().time()}, Distance: {package_distance} miles, "
+              + f"Time: {self.distance_to_time(package_distance)} mins.")
+        print(f"\t\t{package}")
 
         return package_distance
 
-    def find_shortest_node(self):
-        pass
+    def find_shortest_node(self, given_packages, distances, distance_memo):
+        lowest_distance_package_index = None
+        lowest_distance: float = sys.maxsize
+        for index, destination_package in enumerate(given_packages):
+            destination_node = destination_package.post.node
+            current_trip = (self.location, destination_node)
 
-    def deliver_packages(self, nodes: List[Node], distances: Graph, posts: List[models.Post]):
+            if current_trip in distance_memo:
+                calculated_distance = distance_memo[current_trip]
+            else:
+                calculated_distance = distance.get_distance(distances, self.location, destination_node)
+                distance_memo[current_trip] = calculated_distance
+
+            calculated_distance = calculated_distance if calculated_distance is not None else 0
+            if calculated_distance < lowest_distance:
+                lowest_distance_package_index = index
+                lowest_distance = calculated_distance
+
+        return lowest_distance_package_index, lowest_distance
+
+    def deliver_packages(self, nodes: List[Node], distances: Graph):
         self.location = nodes[0]
         distance_traveled: float = 0
         packages_delivered = 0
 
+        deadline_packages = [p for p in self.packages if p.has_constraint(TimeConstraint)]
+        non_deadline_packages = [p for p in self.packages if p not in deadline_packages]
+
         distance_memo = {}
-        while len(self.packages) > 0:
-            lowest_distance_package_index = None
-            lowest_distance: float = sys.maxsize
-            for index, destination_package in enumerate(self.packages):
-                destination_node = destination_package.post.node
-                current_trip = (self.location, destination_node)
-                calculated_distance = None
+        for package_list in [deadline_packages, non_deadline_packages]:
+            while len(package_list) > 0:
+                lowest_distance_package_index, lowest_distance = \
+                    self.find_shortest_node(package_list, distances, distance_memo)
 
-                if current_trip in distance_memo:
-                    calculated_distance = distance_memo[current_trip]
-                else:
-                    calculated_distance = distance.get_distance(distances, self.location, destination_node)
-                    distance_memo[current_trip] = calculated_distance
-
-                calculated_distance = calculated_distance if calculated_distance is not None else 0
-                if calculated_distance < lowest_distance:
-                    lowest_distance_package_index = index
-                    lowest_distance = calculated_distance
-
-            distance_traveled += self.deliver_package(distances, self.packages[lowest_distance_package_index],
-                                                      lowest_distance)
-            packages_delivered += 1
+                distance_traveled += self.deliver_package(package_list[lowest_distance_package_index],
+                                                          lowest_distance)
+                package_list.remove(package_list[lowest_distance_package_index])
+                packages_delivered += 1
 
         print("=====================================================")
         print(f"Trip Miles: {distance_traveled}, Packages Delivered: {packages_delivered}")
