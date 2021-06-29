@@ -3,13 +3,14 @@ from typing import List
 
 import wgups.models as models
 from wgups.models.constraint import TruckConstraint, TimeConstraint
+from wgups.models.report import Report
 from wgups.structures import Timer, Node, Graph
 import wgups.utils.distances as distance
 from wgups.utils import PackageStatus
 
 
 class Truck:
-    def __init__(self, _id, start_time="08:00", packages=None):
+    def __init__(self, _id, start_time="08:00:00", packages=None):
         if packages is None:
             packages = []
         self.id = _id
@@ -20,6 +21,7 @@ class Truck:
         self.miles_traveled = 0
         self.clock = Timer(self.start_time)
         self.location = None
+        self.current_trip_record = []
         print(f"Truck {self.id} Start: {self.clock.get_time()}")
 
     def is_full(self):
@@ -42,9 +44,13 @@ class Truck:
         else:
             temp_can_deliver = True
             for c in p.constraints:
+                # Handle required truck constraint
                 if type(c) == TruckConstraint and self.id != int(c.required_truck):
                     temp_can_deliver = False
+
+                # Handle time constraints
                 if type(c) == TimeConstraint:
+                    # Make sure package is available before the truck's start time
                     if c.arrival_time is not None:
                         truck_start_time = self.clock.get_time().time()
                         package_arrival_time = c.arrival_time.time()
@@ -63,8 +69,9 @@ class Truck:
         self.clock.add_minutes(self.distance_to_time(package_distance))
 
         print(f"Truck {self.id}: {self.clock.get_time().time()}, Distance: {package_distance} miles, "
-              + f"Time: {self.distance_to_time(package_distance)} mins.")
+              + f"Time: {self.distance_to_time(package_distance)} minutes")
         print(f"\t\t{package}")
+        # self.current_trip_record.append()
 
         return package_distance
 
@@ -88,10 +95,14 @@ class Truck:
 
         return lowest_distance_package_index, lowest_distance
 
-    def deliver_packages(self, nodes: List[Node], distances: Graph):
+    def deliver_packages(self, nodes: List[Node], reports: List[Report], distances: Graph):
+        self.current_trip_record = []
         self.location = nodes[0]
         distance_traveled: float = 0
         packages_delivered = 0
+
+        for p in self.packages:
+            p.status = PackageStatus.en_route()
 
         deadline_packages = [p for p in self.packages if p.has_constraint(TimeConstraint)]
         non_deadline_packages = [p for p in self.packages if p not in deadline_packages]
@@ -101,12 +112,15 @@ class Truck:
             while len(package_list) > 0:
                 lowest_distance_package_index, lowest_distance = \
                     self.find_shortest_node(package_list, distances, distance_memo)
+                next_package = package_list[lowest_distance_package_index]
 
-                distance_traveled += self.deliver_package(package_list[lowest_distance_package_index],
+                distance_traveled += self.deliver_package(next_package,
                                                           lowest_distance)
-                package_list.remove(package_list[lowest_distance_package_index])
-                packages_delivered += 1
-
+                reports.append(Report(
+                    package=next_package,
+                    time=self.clock.get_time()
+                ))
+                package_list.remove(next_package)
         print("=====================================================")
         print(f"Trip Miles: {distance_traveled}, Packages Delivered: {packages_delivered}")
         print("=====================================================")

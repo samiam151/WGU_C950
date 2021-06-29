@@ -8,10 +8,11 @@ from wgups.structures import HashSet, Graph, Node
 
 class Depot:
     def __init__(self, distance_map: Graph, packages: HashSet):
-        self.trucks = [models.Truck(1), models.Truck(2, start_time="10:30")]
+        self.trucks = [models.Truck(1), models.Truck(2, start_time="10:30:00")]
         self.packages = packages.all()
         self.distances = distance_map
         self.total_miles_traveled: float = 0
+        self.package_reports = []
 
     def deliver_packages(self, nodes: List[Node], posts: List[models.Post]):
         unconstrained_packages = []
@@ -58,6 +59,6 @@ class Depot:
                     truck.add_package(package)
                     unconstrained_packages.remove(package)
 
-            self.total_miles_traveled += truck.deliver_packages(nodes, self.distances)
+            self.total_miles_traveled += truck.deliver_packages(nodes, self.package_reports, self.distances)
 
         print("Total Miles Traveled:", "{:.2f}".format(self.total_miles_traveled))

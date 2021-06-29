@@ -14,7 +14,7 @@ class Package:
         self.weight: int = int(weight)
         self.notes: str = notes
         self.constraints = []
-        self.status = PackageStatus.unassigned()
+        self.status = PackageStatus.at_hub()
         self.node = None
         self.post = None
 

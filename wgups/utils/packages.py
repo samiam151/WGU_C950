@@ -5,6 +5,8 @@ import wgups.models as models
 import wgups.models.constraint as constraint
 import wgups.structures as structures
 from itertools import cycle
+
+from wgups.structures import Timer
 from wgups.utils import PackageStatus
 
 constraint_cues = {
@@ -24,9 +26,8 @@ def add_package_constraints(packages: structures.HashSet) -> structures.HashSet:
             ac_package.city = "Salt Lake City"
             ac_package.state = "84111"
             ac_package.zip = "UT"
-            today = datetime.today()
-            d = datetime(today.year, today.month, today.day, 10, 20)
-            ac_package.constraints.append(constraint.TimeConstraint(arrival_time=d))
+
+            ac_package.constraints.append(constraint.TimeConstraint(arrival_time=Timer.create_time(10, 20)))
 
         # Add co-package constraints
         if constraint_cues.get("co_package") in ac_package.notes:
@@ -46,8 +47,7 @@ def add_package_constraints(packages: structures.HashSet) -> structures.HashSet:
         if constraint_cues.get("delay") in ac_package.notes:
             arrival_time = ac_package.notes.split(constraint_cues.get("delay"))[1]
             arrival_times = [int(n) for n in arrival_time.split(" ")[0].split(":")]
-            today = datetime.today()
-            d = datetime(today.year, today.month, today.day, int(arrival_times[0]), int(arrival_times[1]))
+            d = Timer.create_time(int(arrival_times[0]), int(arrival_times[1]))
             ac_package.constraints.append(constraint.TimeConstraint(arrival_time=d))
 
         # Add trick requirement constraints

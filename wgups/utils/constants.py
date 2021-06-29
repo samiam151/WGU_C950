@@ -1,15 +1,11 @@
 class PackageStatus:
     @staticmethod
-    def unassigned():
-        return "Un-Assigned"
+    def at_hub():
+        return "At the Hub"
 
     @staticmethod
-    def assigned():
-        return "Assigned"
-
-    @staticmethod
-    def delivering():
-        return "Out for Delivery"
+    def en_route():
+        return "En Route"
 
     @staticmethod
     def delivered():
@@ -32,3 +28,7 @@ class ConstraintType:
     @staticmethod
     def truck():
         return "Truck"
+
+
+class UserPrompts:
+    pass
