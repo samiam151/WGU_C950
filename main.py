@@ -8,14 +8,23 @@ from wgups.structures import Timer
 app = Application()
 app.initialize()
 
-
 if __name__ == '__main__':
+    print("=====================================================")
     print("Welcome to the WGUPS Daily Local Deliveries System!")
-    print("--- some instructions ---")
+    print("=====================================================")
+    app.display_options()
 
-    exit_commands = ['quit', 'exit', 'q', '']
-    # while input('Please enter a command:') not in exit_commands:
-    #     pass
+    command = input('Please enter a command: ')
+    while command not in app.exit_commands:
+        try:
+            c = app.commands.get(command)
+            c.get("method")()
+            print(f"========= END =========")
+            command = input('Please enter a command:')
+        except AttributeError:
+            print(f"========= ERROR =========")
+            print("Please enter a valid command from the options below")
+            app.display_options()
+            command = input('Please enter a command: ')
 
-    app.run_time_reports()
-
+    print("See you next time!")

@@ -61,4 +61,4 @@ class Depot:
 
             self.total_miles_traveled += truck.deliver_packages(nodes, self.package_reports, self.distances)
 
-        print("Total Miles Traveled:", "{:.2f}".format(self.total_miles_traveled))
+        # print("Total Miles Traveled:", "{:.2f}".format(self.total_miles_traveled))

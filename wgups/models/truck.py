@@ -22,7 +22,7 @@ class Truck:
         self.clock = Timer(self.start_time)
         self.location = None
         self.current_trip_record = []
-        print(f"Truck {self.id} Start: {self.clock.get_time()}")
+        # print(f"Truck {self.id} Start: {self.clock.get_time()}")
 
     def is_full(self):
         return len(self.packages) >= self.package_limit
@@ -67,10 +67,11 @@ class Truck:
             if p.id == package.id:
                 self.packages.remove(package)
         self.clock.add_minutes(self.distance_to_time(package_distance))
+        package.delivered_at = self.clock.get_time()
 
-        print(f"Truck {self.id}: {self.clock.get_time().time()}, Distance: {package_distance} miles, "
-              + f"Time: {self.distance_to_time(package_distance)} minutes")
-        print(f"\t\t{package}")
+        # print(f"Truck {self.id}: {self.clock.get_time().time()}, Distance: {package_distance} miles, "
+        #       + f"Time: {self.distance_to_time(package_distance)} minutes")
+        # print(f"\t\t{package}")
         # self.current_trip_record.append()
 
         return package_distance
@@ -103,6 +104,7 @@ class Truck:
 
         for p in self.packages:
             p.status = PackageStatus.en_route()
+            p.loaded_at = self.clock.get_time()
 
         deadline_packages = [p for p in self.packages if p.has_constraint(TimeConstraint)]
         non_deadline_packages = [p for p in self.packages if p not in deadline_packages]
@@ -121,9 +123,9 @@ class Truck:
                     time=self.clock.get_time()
                 ))
                 package_list.remove(next_package)
-        print("=====================================================")
-        print(f"Trip Miles: {distance_traveled}, Packages Delivered: {packages_delivered}")
-        print("=====================================================")
+        # print("=====================================================")
+        # print(f"Trip Miles: {distance_traveled}, Packages Delivered: {packages_delivered}")
+        # print("=====================================================")
         return distance_traveled
 
     def add_package(self, p: models.Package):
