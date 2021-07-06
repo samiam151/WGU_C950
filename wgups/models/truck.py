@@ -1,5 +1,5 @@
 import sys
-from typing import List
+from typing import List, Union
 
 import wgups.models as models
 from wgups.models.constraint import TruckConstraint, TimeConstraint
@@ -20,7 +20,7 @@ class Truck:
         self.start_time: str = start_time
         self.miles_traveled = 0
         self.clock = Timer(self.start_time)
-        self.location = None
+        self.location: Union[Node, None] = None
         self.current_trip_record = []
         # print(f"Truck {self.id} Start: {self.clock.get_time()}")
 

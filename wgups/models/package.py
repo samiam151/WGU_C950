@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Union
 
 from wgups.structures import Timer
 from wgups.utils.constants import PackageStatus
@@ -18,9 +18,8 @@ class Package:
         self.status = PackageStatus.at_hub()
         self.node = None
         self.post = None
-        self.loaded_at: Timer = None
-        self.delivered_at: Timer = None
-
+        self.loaded_at: Union[Timer, None] = None
+        self.delivered_at: Union[Timer, None] = None
 
     def has_constraints(self):
         return len(self.constraints) > 0
@@ -38,7 +37,9 @@ class Package:
     def mark_status_delivered(self):
         self.status = PackageStatus.delivered()
 
-    def get_status_at(self, time: Timer):
+    def get_status_at(self, time: Timer = None):
+        if time is None:
+            return self.get_status_at(Timer.create_time(17))
         if self.delivered_at is not None and self.delivered_at < time:
             return PackageStatus.delivered()
         if self.loaded_at is not None and self.loaded_at < time:
@@ -50,5 +51,4 @@ class Package:
 
     def __str__(self):
         constraints = [c.type for c in self.constraints]
-        return f"[Package]: Id = {self.id}, Status: {self.status}, Address = {str(self.address)}, Constraints = {constraints}"
-
+        return f"[Package]: Id = {self.id}, Status: {self.status}, Address = {str(self.address)}, Constraints = {constraints} "

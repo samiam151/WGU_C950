@@ -2,6 +2,7 @@ from itertools import cycle
 from typing import List
 
 import wgups.models as models
+from wgups.models import Package
 from wgups.models.constraint import PackageConstraint
 from wgups.structures import HashSet, Graph, Node
 
@@ -9,7 +10,7 @@ from wgups.structures import HashSet, Graph, Node
 class Depot:
     def __init__(self, distance_map: Graph, packages: HashSet):
         self.trucks = [models.Truck(1), models.Truck(2, start_time="10:30:00")]
-        self.packages = packages.all()
+        self.packages: List[Package] = packages.all()
         self.distances = distance_map
         self.total_miles_traveled: float = 0
         self.package_reports = []

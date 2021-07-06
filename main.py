@@ -3,7 +3,6 @@ Sam, Nicolas
 Student ID: 001249697
 """
 from wgups.models.application import Application
-from wgups.structures import Timer
 
 app = Application()
 app.initialize()
@@ -14,17 +13,19 @@ if __name__ == '__main__':
     print("=====================================================")
     app.display_options()
 
-    command = input('Please enter a command: ')
-    while command not in app.exit_commands:
+    command = input(app.input_prompts.get("enter_command"))
+    while command.lower() not in app.exit_commands:
         try:
-            c = app.commands.get(command)
+            c = app.commands.get(command.lower())
             c.get("method")()
             print(f"========= END =========")
-            command = input('Please enter a command:')
+            command = input(app.input_prompts.get("enter_command")).lower()
         except AttributeError:
             print(f"========= ERROR =========")
-            print("Please enter a valid command from the options below")
+            print(app.input_prompts.get("incorrect_command"))
             app.display_options()
-            command = input('Please enter a command: ')
+            command = input(app.input_prompts.get("enter_command")).lower()
 
-    print("See you next time!")
+    print("=====================================================")
+    print("Thanks for using our system. See you next time!")
+    print("====================== END ==========================")
