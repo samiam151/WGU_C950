@@ -22,7 +22,6 @@ class Truck:
         self.clock = Timer(self.start_time)
         self.location: Union[Node, None] = None
         self.current_trip_record = []
-        # print(f"Truck {self.id} Start: {self.clock.get_time()}")
 
     def is_full(self):
         return len(self.packages) >= self.package_limit
@@ -37,6 +36,10 @@ class Truck:
     Determines if the given package can be delivered
     """
     def can_deliver(self, p: models.Package):
+        """
+        Runtime: O(n)
+        Space: O(n)
+        """
         # Accept any package with no constraints
         if not p.has_constraints():
             return True
@@ -59,7 +62,19 @@ class Truck:
 
             return temp_can_deliver
 
+    def return_home(self, distances, node):
+        current_location = self.location
+        calculated_distance = distance.get_distance(distances, self.location, node)
+        self.clock.add_minutes(self.distance_to_time(calculated_distance))
+        self.location = node
+
+        return calculated_distance
+
     def deliver_package(self, package: models.Package, package_distance: float):
+        """
+        Runtime: O(n)
+        Space: O(n)
+        """
         destination_node = package.post.node
         self.location = destination_node
         package.status = PackageStatus.delivered()
@@ -68,11 +83,6 @@ class Truck:
                 self.packages.remove(package)
         self.clock.add_minutes(self.distance_to_time(package_distance))
         package.delivered_at = self.clock.get_time()
-
-        # print(f"Truck {self.id}: {self.clock.get_time().time()}, Distance: {package_distance} miles, "
-        #       + f"Time: {self.distance_to_time(package_distance)} minutes")
-        # print(f"\t\t{package}")
-        # self.current_trip_record.append()
 
         return package_distance
 
@@ -100,7 +110,6 @@ class Truck:
         self.current_trip_record = []
         self.location = nodes[0]
         distance_traveled: float = 0
-        packages_delivered = 0
 
         for p in self.packages:
             p.status = PackageStatus.en_route()
@@ -123,16 +132,15 @@ class Truck:
                     time=self.clock.get_time()
                 ))
                 package_list.remove(next_package)
-        # print("=====================================================")
-        # print(f"Trip Miles: {distance_traveled}, Packages Delivered: {packages_delivered}")
-        # print("=====================================================")
+
+        distance_traveled += self.return_home(distances, nodes[0])
         return distance_traveled
 
     def add_package(self, p: models.Package):
         self.packages.append(p)
 
     def __repr__(self):
-        s = f"[Truck] Id = {self.id}, Miles = {self.miles_traveled}, Start = {self.start_time} Package Count = {len(self.packages)}\n"
+        s = f"[Truck] Id = {self.id}, Miles = {self.miles_traveled}, Start = {self.start_time} \n"
         for p in self.packages:
             s += f"\t => {p}\n"
         return s

@@ -2,6 +2,9 @@ from wgups.utils.constants import ConstraintType
 
 
 class Constraint:
+    """
+    Represents a requirement for a package
+    """
     def __init__(self):
         self.type = None
 
@@ -14,6 +17,10 @@ class Constraint:
 
 
 class TruckConstraint(Constraint):
+    """
+    Type of constraint for a package that must be delivered
+    by a specific Truck
+    """
     def __init__(self, truck=None):
         Constraint.__init__(self)
         self.type = ConstraintType.truck()
@@ -21,6 +28,10 @@ class TruckConstraint(Constraint):
 
 
 class TimeConstraint(Constraint):
+    """
+    Type of constraint for a package that has deadline and arrival
+    time requirements
+    """
     def __init__(self, arrival_time=None, deadline=None):
         Constraint.__init__(self)
         self.type = ConstraintType.time()
@@ -29,6 +40,10 @@ class TimeConstraint(Constraint):
 
 
 class PackageConstraint(Constraint):
+    """
+    Type of constraint for a package that must be delivered with
+    other specific packages
+    """
     def __init__(self, co_packages=None):
         Constraint.__init__(self)
         if co_packages is None:

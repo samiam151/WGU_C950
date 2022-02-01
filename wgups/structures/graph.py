@@ -10,9 +10,17 @@ class Graph:
         self.edges = {}
 
     def add_node(self, new_node):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         self.adjacency_list[new_node] = []
 
     def add_directed_edge(self, from_node, to_node, weight):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         if weight != '':
             edge = Edge(from_node, to_node, weight)
             self.edges[(from_node, to_node)] = edge
@@ -21,13 +29,25 @@ class Graph:
             self.adjacency_list[from_node].append(to_node)
 
     def add_undirected_edge(self, node_a, node_b, weight):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         self.add_directed_edge(node_a, node_b, weight)
         self.add_directed_edge(node_b, node_a, weight)
 
     def lookup(self, node_a, node_b):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         return self.edges[(node_a, node_b)]
 
     def get_edges(self, node: Node):
+        """
+        Runtime: O(n)
+        Space: O(n)
+        """
         if node is None:
             return None
         else:

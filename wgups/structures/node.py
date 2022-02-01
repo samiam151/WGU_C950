@@ -7,5 +7,4 @@ class Node:
         return self.__str__()
 
     def __str__(self):
-        # return f"[Node]: {self.name}\n\t\t[Value]: {self.value}"
         return f"[Node]: {self.name}"

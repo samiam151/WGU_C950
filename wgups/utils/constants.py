@@ -28,7 +28,3 @@ class ConstraintType:
     @staticmethod
     def truck():
         return "Truck"
-
-
-class UserPrompts:
-    pass

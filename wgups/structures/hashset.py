@@ -14,6 +14,10 @@ class HashSet(Generic[T]):
 
     # Inserts a new item into the hash table.
     def insert(self, item):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         # get the bucket list where this item will go.
         bucket = hash(item) % len(self.table)
         bucket_list = self.table[bucket]
@@ -24,6 +28,10 @@ class HashSet(Generic[T]):
     # Searches for an item with matching key in the hash table.
     # Returns the item if found, or None if not found.
     def lookup(self, key):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         # get the bucket list where this key would be.
         bucket = hash(key) % len(self.table)
         bucket_list = self.table[bucket]
@@ -38,7 +46,11 @@ class HashSet(Generic[T]):
             return None
 
     def all(self) -> List[T]:
-        items = []
+        """
+        Runtime: O(n)
+        Space: O(n)
+        """
+        items: List[T] = []
         for bucket in self.table:
             for v in bucket:
                 items.append(v)
@@ -46,6 +58,10 @@ class HashSet(Generic[T]):
 
     # Removes an item with matching key from the hash table.
     def remove(self, key):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         # get the bucket list where this item will be removed from.
         bucket = hash(key) % len(self.table)
         bucket_list = self.table[bucket]

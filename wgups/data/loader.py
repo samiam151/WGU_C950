@@ -8,6 +8,10 @@ from wgups.structures import Node
 
 
 def load_packages() -> structures.HashSet[models.Package]:
+    """
+    Reads the packages.csv file, then creates and returns
+    a HashSet of the package data
+    """
     package_hash_set: structures.HashSet = structures.HashSet()
     _path = "./wgups/data/data/packages.csv"
 
@@ -22,6 +26,10 @@ def load_packages() -> structures.HashSet[models.Package]:
 
 
 def generate_nodes(rows: List[List[str]], posts: List[models.Post]):
+    """
+    Create the nodes for the distance Graph, assign each
+    node to it's respective Post, then return the nodes
+    """
     nodes = []
     current_node = None
     try:
@@ -38,6 +46,9 @@ def generate_nodes(rows: List[List[str]], posts: List[models.Post]):
 
 
 def generate_posts(rows: List[List[str]]) -> List[models.Post]:
+    """
+    Create a Post for each row in the csv data, then return all Posts
+    """
     posts: List[models.Post] = []
     current_post = None
     try:
@@ -55,6 +66,7 @@ def generate_posts(rows: List[List[str]]) -> List[models.Post]:
 
 
 def load_distances() -> (structures.Graph, List[Node], List[Post]):
+    """Create Graph representing the distances, then return the graph"""
     distance_graph = structures.Graph()
     _path = "./wgups/data/data/distances.csv"
 
@@ -88,6 +100,7 @@ def load_distances() -> (structures.Graph, List[Node], List[Post]):
 
 
 def process_distances(nodes: List[structures.Node], distance_graph: structures.Graph, distances: List[List[str]]) -> structures.Graph:
+    """Add each node to the graph, along with the edges that connect them"""
     for i, node in enumerate(nodes):
         distance_graph.add_node(node)
 

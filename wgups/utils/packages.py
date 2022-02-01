@@ -1,13 +1,7 @@
-from typing import List
-from datetime import datetime
-
-import wgups.models as models
 import wgups.models.constraint as constraint
 import wgups.structures as structures
-from itertools import cycle
 
 from wgups.structures import Timer
-from wgups.utils import PackageStatus
 
 constraint_cues = {
     "co_package": "Must be delivered with ",
@@ -18,10 +12,14 @@ constraint_cues = {
 
 
 def add_package_constraints(packages: structures.HashSet) -> structures.HashSet:
+    """
+    Given the list of packages, attaches constraints for their delivery
+    Runtime: O(n)
+    Space: O(n)
+    """
     for ac_package in sorted(packages.all(), key=lambda x: x.id):
         # Add address constraints
         if constraint_cues.get("wrong_address") in ac_package.notes:
-            # ac_package.constraints.append(constraint.AddressConstraint())
             ac_package.address = "410 S State St"
             ac_package.city = "Salt Lake City"
             ac_package.state = "84111"

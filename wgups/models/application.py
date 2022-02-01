@@ -9,6 +9,10 @@ from wgups.utils import add_package_constraints
 
 
 def get_user_time():
+    """
+    Accepts a time from the user, test to make sure that the
+    time is in the correct format
+    """
     time_regex = re.compile(r'^(([01]\d|2[0-3]):([0-5]\d)|24:00)$')
     print("Enter time in HH:MM format:")
     given_time = input("> ")
@@ -23,23 +27,34 @@ def get_user_time():
 
 
 def get_user_package_id():
+    """
+     Accepts the package ID from the user
+    """
     print("Enter the requested Package ID:")
     return int(input("> "))
 
 
 class Application:
+    """
+    Controls the flow of the application
+    """
     def __init__(self):
         self.distance_graph, self.nodes, self.posts = load_distances()
         self.packages: HashSet[Package] = load_packages()
         self.depot: Depot = Depot(self.distance_graph, self.packages)
 
+        """
+        A dictionary of prompts to present to the user
+        """
         self.input_prompts = {
             "enter_command": 'Please enter a command:\n> ',
             "incorrect_command": "Please enter a valid command from the options below"
         }
+        """
+        A dictionary of commands the user can enter to run
+        """
         self.commands = {
             "all": {
-              # "method": self.print_all_package_status_at_time,
               "method": self.print_table_packages,
               "description": "Displays the status of all packages at a chosen times"
             },
@@ -47,7 +62,7 @@ class Application:
                 "method": self.print_package_status_at_time,
                 "description": "Displays the status of a chosen package at a chosen time"
             },
-            "total-mileage": {
+            "miles": {
                 "method": self.print_total_mileage,
                 "description": "Displays the total mileage across all trucks"
             }
@@ -59,7 +74,7 @@ class Application:
             package.post = next((post for post in self.posts if package.address == post.address), None)
 
         self.packages = add_package_constraints(self.packages)
-        self.depot.deliver_packages(self.nodes, self.posts)
+        self.depot.deliver_packages(self.nodes)
 
     def display_options(self):
         print("Please choose an option below:")

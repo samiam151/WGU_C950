@@ -15,7 +15,7 @@ class Depot:
         self.total_miles_traveled: float = 0
         self.package_reports = []
 
-    def deliver_packages(self, nodes: List[Node], posts: List[models.Post]):
+    def deliver_packages(self, nodes: List[Node]):
         unconstrained_packages = []
         constrained_packages = []
         package_constrained_packages = []
@@ -61,5 +61,3 @@ class Depot:
                     unconstrained_packages.remove(package)
 
             self.total_miles_traveled += truck.deliver_packages(nodes, self.package_reports, self.distances)
-
-        # print("Total Miles Traveled:", "{:.2f}".format(self.total_miles_traveled))

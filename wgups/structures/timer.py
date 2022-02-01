@@ -10,15 +10,31 @@ class Timer:
         self.start_time = start_time
 
     def get_time(self):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         return self.__time
 
     def add_minutes(self, minutes: int):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         self.__time += timedelta(minutes=minutes)
 
     def print_time(self):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         print(f"Total Time: {self.__time}")
 
     @staticmethod
     def create_time(hours: int, minutes: int = 0):
+        """
+        Runtime: O(1)
+        Space: O(1)
+        """
         today = datetime.today()
         return datetime(today.year, today.month, today.day, hours, minutes)
